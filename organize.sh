@@ -15,11 +15,9 @@
 ## 1) Download all student files from mycourses
 ##    and extract them to your working directory
 ##
-## 2) Move organize.sh into working directory
-##
-## 3) Run script with ./organize.sh
+## 3) Run script with /path/to/organize.sh
 ##    (NOTE: if this doesn't run, you will have to
-##     run chmod u+r organize.sh to make it executable)
+##     run chmod u+x organize.sh to make it executable)
 ##
 ## 4) Sit back and look at all of the glorious time
 ##    time-saving that is being had.
