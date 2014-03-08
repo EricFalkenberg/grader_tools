@@ -1,5 +1,7 @@
-## This script will take a directory of zip/py files downloaded
-## from mycourses and organize them into sub-directories by student
+#!/bin/bash
+
+## This script will take a zip of zip/py/java files
+## and organize them into sub-directories for each student.
 ## It will also rename directly submitted python files to their appropriate
 ## name once moved into a sub-direcotry.
 ##
@@ -10,21 +12,21 @@
 ## Institute of Technology.
 ## 
 ## AUTHOR: Eric Falkenberg <exf4789@rit.edu>
+## AUTHOR: Kaitlin Hipkin <kah5368@rit.edu>
 ##
 ## <HOW TO USE>
-## 1) Download all student files from mycourses
-##    and extract them to your working directory
+## 1) Download all student submissions in a zip file.
 ##
-## 3) Run script with /path/to/organize.sh
+## 3) Run script with "/path/to/organize.sh outer.zip"
 ##    (NOTE: if this doesn't run, you will have to
-##     run chmod u+x organize.sh to make it executable)
+##     run chmod u+x organize.sh to make it executable.)
 ##
-## 4) Sit back and look at all of the glorious time
+## 4) Sit back and look at all of the glorious
 ##    time-saving that is being had.
 ##
 ## 5) That's it! you're done. Each student will now
-##    have it's own sub-directory which will contain the neccessary
-##    python files.
+##    have his own sub-directory which will contain the appropriate
+##    files.
 ##
 ## NOTE: Make sure your working directory is void of any non-relevant
 ## .py / .zip files as they will be looked at and possibly risk
@@ -32,35 +34,39 @@
 ##  To ensure nothing goes wrong, it is advised that you run
 ##  this script in a folder with nothing but student files.
 ##
-FILES="*.*"
 
-#for every file in current directory
-for f in $FILES
-do
-    
-    arrIN=${f//-/ }    #split file by -
-    dirname=${f%-*}    #directory to be created
-    fname=${arrIN[-1]} #name of file with the name cut off
+new_main_folder="submissions"
+#if successfully unzipped main zip file
+if unzip "$1" -d "$new_main_folder"/; then
+    cd "$new_main_folder"
 
-    #if a directory does not exist for the student, create one
-    if [ ! -d "$dirname" ];
-    then
-        if [ "${f: -3}" == ".py" ] || [ "${f: -4}" == ".zip" ];
-	    then
-            echo "Making directory: $dirname"
-	    mkdir "$dirname"
-	fi
-    fi
-    #move files to corresponding directory and unzip/rename
-    if [ "${f: -4}" == ".zip" ];
-    then
-        mv "$f" ./"$dirname"/"$fname"
-        echo "moving $f to $dirname"
-        unzip ./"$dirname"/"$fname" -d ./"$dirname"
-    fi
-    if [ "${f: -3}" == ".py" ];
-    then
-        mv "$f" ./"$dirname"/"$fname"
-        echo "moving .py to $dirname"
-    fi
-done
+    #for every student's zip file
+    for old_student_zip in *.zip; do
+
+        if [ -f "$old_student_zip" ]; then
+            # unzip each student's zip into a new directory.
+            # (directory to be created should be student's name with
+            # no numbers, -'s, or spaces.)
+            dirname=${old_student_zip//[0-9]/}
+            dirname=${dirname//-/}
+            dirname=${dirname// /}
+            # chop off .zip file extension
+            dirname=${dirname//.zip/}
+            dirname=${dirname//[Ll][Aa][Bb]/}
+
+            #if such a directory does not exist for the student, create it.
+            if [ ! -d "$dirname" ]; then
+                echo "Making student directory: $dirname"
+                mkdir "$dirname"
+            fi
+
+            # unzip into new directory and delete old zip archive.
+            echo "unzipping $old_student_zip in $dirname"
+            unzip "$old_student_zip" -d "$dirname"
+            echo "deleting $old_student_zip"
+            rm "$old_student_zip"
+        fi
+    done
+
+    cd ..
+fi
