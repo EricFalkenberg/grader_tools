@@ -17,7 +17,8 @@
 ## <HOW TO USE>
 ## 1) Download all student submissions in a zip file.
 ##
-## 3) Run script with "/path/to/organize.sh outer.zip"
+## 3) Run script with 
+##    "/path/to/organize.sh zipFileName newFolderName {filesToKeepPerSub ..}"
 ##    (NOTE: if this doesn't run, you will have to
 ##     run chmod u+x organize.sh to make it executable.)
 ##
@@ -35,38 +36,92 @@
 ##  this script in a folder with nothing but student files.
 ##
 
-new_main_folder="submissions"
-#if successfully unzipped main zip file
-if unzip "$1" -d "$new_main_folder"/; then
-    cd "$new_main_folder"
+
+
+# Helper function to check if given file name is in the list of
+# desired files.
+# 
+# Usage: contains "element" arrayOfElements
+function contains() {
+    local n=$#
+    local value=${!n}
+    for ((i=1;i < $#;i++)) {
+        if [ "${!i}" == "${value}" ]; then
+            echo "y"
+            return 0
+        fi
+    }
+    echo "n"
+    return 1
+}
+
+
+# Main program.
+
+# if successfully unzipped main zip file
+if unzip "$1" -d "$2"; then
+
+    cd "$2"
+
+    ALL_FILES="*.*"
 
     #for every student's zip file
-    for old_student_zip in *.zip; do
+    for old_name in $ALL_FILES; do
+        # Clean the file name for each student submission.
+        # (should be student's name with no #s, -'s, or spaces.)
+        new_name=${old_name//[0-9]/}
+        new_name=${new_name// - /}
+        new_name=${new_name// /_}
+        # chop off .zip file ending and any "Lab"/"Project" descriptors.
+        new_name=${new_name//.zip/}
+        new_name=${new_name//[Ll][Aa][Bb]/}
+        new_name=${new_name//[Pp][Rr][Oo][Jj][Ee][Cc][Tt]/}
 
-        if [ -f "$old_student_zip" ]; then
-            # unzip each student's zip into a new directory.
-            # (directory to be created should be student's name with
-            # no numbers, -'s, or spaces.)
-            dirname=${old_student_zip//[0-9]/}
-            dirname=${dirname//-/}
-            dirname=${dirname// /}
-            # chop off .zip file extension
-            dirname=${dirname//.zip/}
-            dirname=${dirname//[Ll][Aa][Bb]/}
+        # Create a cleanly-named directory for each student.
+        if [ ! -d "$new_name" ]; then
+            # echo "Making student directory: $new_name"
+            mkdir "$new_name"
+        fi
 
-            #if such a directory does not exist for the student, create it.
-            if [ ! -d "$dirname" ]; then
-                echo "Making student directory: $dirname"
-                mkdir "$dirname"
-            fi
+        # unzip each student's submission.zip into the new directory.
+        temp="${old_name//.zip/}"
+        if unzip "$old_name" -d "$temp"; then
+            # unzip into new directory and move to correct directory level,
+            # then delete old zip archive.
 
-            # unzip into new directory and delete old zip archive.
-            echo "unzipping $old_student_zip in $dirname"
-            unzip "$old_student_zip" -d "$dirname"
-            echo "deleting $old_student_zip"
-            rm "$old_student_zip"
+            # echo "Successfully unzipped $old_name into $temp"
+
+            for student_file in "$temp"/$ALL_FILES; do
+                mv "$student_file" "$new_name"/
+            done
+
+            rm -r "${temp}"
+
+            rm -r "${old_name}"
+
+            # look through all student files and process them.
+            cd "$new_name"
+            for student_file in $ALL_FILES; do
+                # if this file should be kept, keep it. otherwise, delete it.
+                if [ $(contains "${@:2}" "$student_file") == "n" ]; then
+                    if [ -f "$student_file" ]; then
+                        # echo "deleting bad file $student_file..."
+                        rm "$student_file"
+                    elif [ -d "$student_file" ]; then
+                        # echo "deleting bad directory $student_file..."
+                        rm -r "$student_file"
+                    else
+                        echo "ERROR. $student_file neither file nor directory!"
+                    fi
+                fi
+            done
+            cd ..
+        else
+            echo "FAILED TO UNZIP $old_name"
         fi
     done
 
     cd ..
+else
+    echo "FAILED TO UNZIP $1"
 fi
