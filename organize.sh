@@ -36,12 +36,12 @@
 ##  this script in a folder with nothing but student files.
 ##
 
-
+ALL_FILES=*.*
 
 # Helper function to check if given file name is in the list of
 # desired files.
 # 
-# Usage: contains "element" arrayOfElements
+# Usage: contains element arrayOfElements
 function contains() {
     local n=$#
     local value=${!n}
@@ -57,71 +57,78 @@ function contains() {
 
 
 # Main program.
+if [ $# -gt 2 ]
+then
+    # if specified main zip file can be unzipped
+    if unzip "$1" -d "$2"; then
 
-# if successfully unzipped main zip file
-if unzip "$1" -d "$2"; then
+        cd "$2"
+        echo "******MOVING INTO $2******"
 
-    cd "$2"
+        # Clean all .zip file names to work with CheatChecker software.
+        bash ../"${0//organize/rename}"
 
-    ALL_FILES="*.*"
+        #for every student's zip file
+        shopt -s nullglob
+        for zip_name in *.zip; do
+            echo "PROCESSING SUBMISSION $zip_name"
+            # chop off .zip file ending.
+            new_name=${zip_name//.zip/}
 
-    #for every student's zip file
-    for old_name in $ALL_FILES; do
-        # Clean the file name for each student submission.
-        # (should be student's name with no #s, -'s, or spaces.)
-        new_name=${old_name//[0-9]/}
-        new_name=${new_name// - /}
-        new_name=${new_name// /_}
-        # chop off .zip file ending and any "Lab"/"Project" descriptors.
-        new_name=${new_name//.zip/}
-        new_name=${new_name//[Ll][Aa][Bb]/}
-        new_name=${new_name//[Pp][Rr][Oo][Jj][Ee][Cc][Tt]/}
+            # Create a cleanly-named directory for each student.
+            if [ ! -d "$new_name" ]; then
+                # echo "Making student directory: $new_name"
+                mkdir "$new_name"
+            fi
 
-        # Create a cleanly-named directory for each student.
-        if [ ! -d "$new_name" ]; then
-            # echo "Making student directory: $new_name"
-            mkdir "$new_name"
-        fi
+            # unzip each student's submission.zip into the new directory.
+            temp="${new_name}_temp"
+            if unzip "$zip_name" -d "$temp"; then
+                # unzip into new directory and move to correct directory level,
+                # then delete old zip archive.
 
-        # unzip each student's submission.zip into the new directory.
-        temp="${old_name//.zip/}"
-        if unzip "$old_name" -d "$temp"; then
-            # unzip into new directory and move to correct directory level,
-            # then delete old zip archive.
+                echo "Successfully unzipped $zip_name"
 
-            # echo "Successfully unzipped $old_name into $temp"
+                shopt -s nullglob
+                for student_file in "$temp"/*; do
+                    mv "$student_file" "$new_name"/
+                    # echo "moved $temp/$student_file into ../$new_name"
+                done
 
-            for student_file in "$temp"/$ALL_FILES; do
-                mv "$student_file" "$new_name"/
-            done
+                rm -r "$zip_name"
+                rm -r "$temp"
 
-            rm -r "${temp}"
+                # look through all student files and process them.
+                cd "$new_name"
+                echo "******MOVING INTO $new_name******"
 
-            rm -r "${old_name}"
-
-            # look through all student files and process them.
-            cd "$new_name"
-            for student_file in $ALL_FILES; do
-                # if this file should be kept, keep it. otherwise, delete it.
-                if [ $(contains "${@:2}" "$student_file") == "n" ]; then
-                    if [ -f "$student_file" ]; then
-                        # echo "deleting bad file $student_file..."
-                        rm "$student_file"
-                    elif [ -d "$student_file" ]; then
-                        # echo "deleting bad directory $student_file..."
-                        rm -r "$student_file"
-                    else
-                        echo "ERROR. $student_file neither file nor directory!"
+                shopt -s nullglob
+                for student_file in *; do
+                    # if this file should be kept, keep it. otherwise, delete it.
+                    if [ $(contains "${@:2}" "$student_file") == "n" ]; then
+                        if [ -f "$student_file" ]; then
+                            echo "** Student $new_name has bad file $student_file..."
+                            # rm "$student_file"
+                        elif [ -d "$student_file" ]; then
+                            echo "** Student $new_name has bad directory $student_file..."
+                            # rm -r "$student_file"
+                        else
+                            echo "ERROR. $student_file neither file nor directory!"
+                        fi
                     fi
-                fi
-            done
-            cd ..
-        else
-            echo "FAILED TO UNZIP $old_name"
-        fi
-    done
-
-    cd ..
+                done
+                cd ..
+                echo "******BACKING UP******"
+            else
+                echo "FAILED TO UNZIP $zip_name"
+            fi
+        done
+        cd ..
+        echo "******BACKING UP******"
+    else
+        echo "FAILED TO UNZIP $1"
+    fi
 else
-    echo "FAILED TO UNZIP $1"
+    echo "Usage: organize <zipFileName> <newFolderName> <goodFile1>... <goodFile[n]>"
 fi
+
