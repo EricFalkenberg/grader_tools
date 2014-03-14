@@ -29,12 +29,7 @@
 ##    have his own sub-directory which will contain the appropriate
 ##    files.
 ##
-## NOTE: Make sure your working directory is void of any non-relevant
-## .py / .zip files as they will be looked at and possibly risk
-##  breaking the script.
-##  To ensure nothing goes wrong, it is advised that you run
-##  this script in a folder with nothing but student files.
-##
+## 
 
 ALL_FILES=*.*
 
@@ -111,7 +106,10 @@ then
                             # rm "$student_file"
                         elif [ -d "$student_file" ]; then
                             echo "** Student $new_name has bad directory $student_file..."
+                            # touch BAD_SUB.txt
                             # rm -r "$student_file"
+                            echo "TRYING TO EXTRACT FILES FROM ECLIPSE DIRECTORY...."
+                            bash ../../"${0//organize/processEclipseDir}" "$student_file"
                         else
                             echo "ERROR. $student_file neither file nor directory!"
                         fi
