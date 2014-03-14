@@ -33,8 +33,8 @@ for old_name in $ALL_FILES; do
 	new_name=${new_name// /}
 	new_name=${new_name//_/}
 	new_name=${new_name//,/_}
-	
 
+	# Copy file and contents into new file and delete old file.
 	cp "$old_name" "$new_name"
 	rm "$old_name"
 

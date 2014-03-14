@@ -106,7 +106,6 @@ then
                             # rm "$student_file"
                         elif [ -d "$student_file" ]; then
                             echo "** Student $new_name has bad directory $student_file..."
-                            # touch BAD_SUB.txt
                             # rm -r "$student_file"
                             echo "TRYING TO EXTRACT FILES FROM ECLIPSE DIRECTORY...."
                             bash ../../"${0//organize/processEclipseDir}" "$student_file"
