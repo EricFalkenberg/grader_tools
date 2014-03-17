@@ -14,6 +14,9 @@
 ##                      student_files
 ##              student_two/
 ##                      student_files
+##              {...}
+##              student_n/
+##                      student_files
 ##              provided_files
 ##              test_files
 ## 
@@ -48,11 +51,11 @@ for file in *; do
             for prov in "${provided_files[@]}"; do
                 if [ -f "$prov" ]; then
                     echo "...removing $file's $prov..."
-                    # rm "$prov"
+                    rm "$prov"
                 fi
                 if [ ! -f "$prov" ]; then
                     echo "...copying $prov to $file's directory..."
-                    # cp "../${prov}" .
+                    cp "../${prov}" .
                 fi
             done
 
@@ -67,11 +70,11 @@ for file in *; do
             for test in "${test_files[@]}"; do
                 if [ -f "$test" ]; then
                     echo "...removing $file's $test..."
-                    # rm "$test"
+                    rm "$test"
                 fi
                 if [ ! -f "$test" ]; then
                     echo "...copying $test to $file's directory..."
-                    # cp "../${test}" .
+                    cp "../${test}" .
                 fi
             done
 
