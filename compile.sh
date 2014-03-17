@@ -7,11 +7,22 @@
 ## AUTHOR: Kaitlin Hipkin <kah5368@rit.edu>
 ##
 ## <HOW TO USE>
-## 1) Run script from same folder as student directories with
+## 
+## 1) The script expects the following file directory layout:
+##      ./
+##              student_one/
+##                      student_files
+##              student_two/
+##                      student_files
+##              provided_files
+##              test_files
+## 
+## 2) Run script from same folder as student directories with
 ##    "/path/to/compile.sh"
 ##    (NOTE: if this doesn't run, you will have to
 ##     run chmod u+x organize.sh to make it executable.)
 ##
+## 
 ## NOTE: Make sure you do not have any other folders at this directory level,
 ##          as the script will attempt to process them as student directories.
 ##          This would probably end badly.
