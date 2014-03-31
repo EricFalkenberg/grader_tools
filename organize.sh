@@ -110,7 +110,7 @@ then
                             echo "** Student $new_name has bad directory $student_file..."
                             # rm -r "$student_file"
                             echo "TRYING TO EXTRACT FILES FROM ECLIPSE DIRECTORY...."
-                            bash ../../"${path_to_graderTools}CS2/processEclipseDir.sh" "$student_file"
+                            bash ../"${path_to_graderTools}CS2/processEclipseDir.sh" "$student_file"
                         else
                             echo "ERROR. $student_file neither file nor directory!"
                         fi
