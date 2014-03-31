@@ -60,8 +60,10 @@ then
         cd "$2"
         echo "******MOVING INTO $2******"
 
+        path_to_graderTools=../"${0//organize.sh/}"
+
         # Clean all .zip file names to work with CheatChecker software.
-        bash ../"${0//organize/rename}"
+        bash ../"${path_to_graderTools}general/rename.sh"
 
         #for every student's zip file
         shopt -s nullglob
@@ -108,7 +110,7 @@ then
                             echo "** Student $new_name has bad directory $student_file..."
                             # rm -r "$student_file"
                             echo "TRYING TO EXTRACT FILES FROM ECLIPSE DIRECTORY...."
-                            bash ../../"${0//organize/processEclipseDir}" "$student_file"
+                            bash ../../"${path_to_graderTools}CS2/processEclipseDir.sh" "$student_file"
                         else
                             echo "ERROR. $student_file neither file nor directory!"
                         fi
