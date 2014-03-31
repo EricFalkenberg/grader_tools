@@ -54,8 +54,10 @@ for file in *; do
                 rm "feedback.txt"
             fi
 
-            # create file that will collect all error messages/output for each student.
+            # create file that will collect all error messages/test diffs for each student.
+            # append the grading skeleton for this assignment to the beginning of the file.
             touch "feedback.txt"
+            cat ../grading_template.txt >> feedback.txt
 
             for prov in "${provided_files[@]}"; do
                 if [ -f "$prov" ]; then
