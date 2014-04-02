@@ -18,11 +18,10 @@
 ##              {...}
 ##              student_n/
 ##                      student_files
-##              provided_files
-##              test_files
+##              provided_files    <-- includes test_files
 ## 
 ## 2) Run script from same folder as student directories with
-##    "/path/to/compile.sh"
+##    "/path/to/compile.sh {required_files ..}"
 ##    (NOTE: if this doesn't run, you will have to
 ##     run chmod u+x organize.sh to make it executable.)
 ##
@@ -37,9 +36,10 @@
 
 # Main program.
 
-provided_files=( "BrowserUtil.java" "Diagnostics.java" "TextStyle.java" "BadChildException.java" )
-test_files=( "Test1.java" "Test2.java" "Test3.java" "Test4.java" "Test5.java" "Test6.java" "TestObject.java" "TestParser.java" )
-student_files=( "HeaderObject.java" "ListObject.java" "ParagraphObject.java" "RootObject.java" "Sequence.java" "StyleObject.java" "TextObject.java" )
+# provided_files=( "BrowserUtil.java" "Diagnostics.java" "TextStyle.java" "BadChildException.java" )
+provided_files="*.java"
+# student_files=( "HeaderObject.java" "ListObject.java" "ParagraphObject.java" "RootObject.java" "Sequence.java" "StyleObject.java" "TextObject.java" )
+student_files="${@}"
 
 shopt -s nullglob
 for file in *; do
@@ -59,14 +59,17 @@ for file in *; do
             touch "feedback.txt"
             cat ../grading_template.txt >> feedback.txt
 
-            for prov in "${provided_files[@]}"; do
-                if [ -f "$prov" ]; then
-                    # echo "...removing $file's $prov..."
-                    rm "$prov"
+            # Replaces any provided files (including Test programs) that
+            # the student included in the submission with the equivalent provided
+            # (solution) programs.  
+            for given in $provided_files; do
+                if [ -f "$given" ]; then
+                    # echo "...removing $file's $given..."
+                    rm "$given"
                 fi
-                if [ ! -f "$prov" ]; then
-                    # echo "...copying $prov to $file's directory..."
-                    cp "../${prov}" .
+                if [ ! -f "$given" ]; then
+                    # echo "...copying $given to $file's directory..."
+                    cp "../${given}" .
                 fi
             done
 
@@ -79,28 +82,28 @@ for file in *; do
                 fi
             done
 
-            for test in "${test_files[@]}"; do
-                if [ -f "$test" ]; then
-                    # echo "...removing $file's $test..."
-                    rm "$test"
-                fi
-                if [ ! -f "$test" ]; then
-                    # echo "...copying $test to $file's directory..."
-                    cp "../${test}" .
-                fi
-            done
-
-            # if student submitted all of the required files, compile the code.
+            # if student submitted all of the required files, compile and test the code.
             if [ "$missing_files" == "False" ]; then
                 echo "compiling $file's code......................"
-                javac "${provided_files[@]}" "${student_files[@]}" "${test_files[@]}" >> feedback.txt 2>&1
+                javac "${provided_files[@]}" "${student_files[@]}" >> feedback.txt 2>&1
                 echo ".................................................. DONE! "
+                bash "${0//compile/test}"
             else
                 compile_error="ERROR:  CANNOT COMPILE $file's CODE. SRC FILES MISSING"
                 echo "$compile_error"
                 echo "$compile_error" >> feedback.txt
                 echo "" >> feedback.txt
+                echo "NO TESTS PERFORMED." >> feedback.txt
+                echo "" >> feedback.txt
             fi
+
+            # Remove provided files again, now that compilation and testing are finished.
+            for given in $provided_files; do
+                if [ -f "$given" ]; then
+                    # echo "...removing $file's $given..."
+                    rm "$given"
+                fi
+            done
 
             cd ..
         fi

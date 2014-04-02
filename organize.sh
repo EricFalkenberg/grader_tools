@@ -18,7 +18,7 @@
 ## 1) Download all student submissions in a zip file.
 ##
 ## 3) Run script with 
-##    "/path/to/organize.sh zipFileName newFolderName {filesToKeepPerSub ..}"
+##    "/path/to/organize.sh zipFileName newFolderName {required_files ..}"
 ##    (NOTE: if this doesn't run, you will have to
 ##     run chmod u+x organize.sh to make it executable.)
 ##
@@ -32,24 +32,6 @@
 ## 
 
 ALL_FILES=*.*
-
-# Helper function to check if given file name is in the list of
-# desired files.
-# 
-# Usage: contains element arrayOfElements
-function contains() {
-    local n=$#
-    local value=${!n}
-    for ((i=1;i < $#;i++)) {
-        if [ "${!i}" == "${value}" ]; then
-            echo "y"
-            return 0
-        fi
-    }
-    echo "n"
-    return 1
-}
-
 
 # Main program.
 if [ $# -gt 2 ]
@@ -100,20 +82,13 @@ then
                 echo "******MOVING INTO $new_name******"
 
                 shopt -s nullglob
+                # if the student has a weird directory, attempt to process it as an
+                # eclipse directory. 
                 for student_file in *; do
-                    # if this file should be kept, keep it. otherwise, delete it.
-                    if [ $(contains "${@:2}" "$student_file") == "n" ]; then
-                        if [ -f "$student_file" ]; then
-                            echo "** Student $new_name has bad file $student_file..."
-                            # rm "$student_file"
-                        elif [ -d "$student_file" ]; then
-                            echo "** Student $new_name has bad directory $student_file..."
-                            # rm -r "$student_file"
-                            echo "TRYING TO EXTRACT FILES FROM ECLIPSE DIRECTORY...."
-                            bash ../"${path_to_graderTools}CS2/processEclipseDir.sh" "$student_file"
-                        else
-                            echo "ERROR. $student_file neither file nor directory!"
-                        fi
+                    if [ -d "$student_file" ]; then
+                        echo "** Student $new_name has bad directory $student_file..."
+                        echo "TRYING TO EXTRACT FILES FROM ECLIPSE DIRECTORY...."
+                        bash ../"${path_to_graderTools}CS2/processEclipseDir.sh" "$student_file"
                     fi
                 done
                 cd ..
@@ -128,6 +103,6 @@ then
         echo "FAILED TO UNZIP $1"
     fi
 else
-    echo "Usage: organize <zipFileName> <newFolderName> <goodFile1>... <goodFile[n]>"
+    echo "Usage: organize <zipFileName> <newFolderName> <requiredFile1>... <requiredFile[n]>"
 fi
 
