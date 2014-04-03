@@ -5,7 +5,7 @@
 ## It will also rename directly submitted python files to their appropriate
 ## name once moved into a sub-direcotry.
 ##
-## Feel free to improve upon this in any way
+## Feel free to improve upon this in any way.
 ##
 ## Written for the purpose of making the grading process
 ## easier for lab instructors / graders at the Rochester 
@@ -16,36 +16,39 @@
 ##
 ## <HOW TO USE>
 ## 1) Download all student submissions in a zip file.
+## 
+## 2) Run init.sh and populate the resulting directory with necessary provided files 
+##      (including tests), expected output for each test, and a grading_guide.txt.
 ##
 ## 3) Run script with 
-##    "/path/to/organize.sh zipFileName newFolderName {required_files ..}"
+##    "/path/to/process.sh zipFileName destinationFolderName {required_files ...}"
 ##    (NOTE: if this doesn't run, you will have to
-##     run chmod u+x organize.sh to make it executable.)
+##     run chmod u+x process.sh to make it executable.)
 ##
 ## 4) Sit back and look at all of the glorious
 ##    time-saving that is being had.
 ##
-## 5) That's it! you're done. Each student will now
-##    have his own sub-directory which will contain the appropriate
-##    files.
+## 5) That's it! you're done. Each student will now have his/her own sub-directory
+##      containing the appropriate files.
 ##
-## 
+## TODO: have processEclipseDir.sh take the array of required files and only move those up.
+##
 
 ALL_FILES=*.*
 
 # Main program.
 if [ $# -gt 2 ]
 then
-    # if specified main zip file can be unzipped
+    # if specified main zip file can be unzipped into the specified destination folder
     if unzip "$1" -d "$2"; then
 
         cd "$2"
         echo "******MOVING INTO $2******"
 
-        path_to_graderTools=../"${0//organize.sh/}"
+        path_to_graderTools=../"${0//process.sh/}"
 
         # Clean all .zip file names to work with CheatChecker software.
-        bash ../"${path_to_graderTools}general/rename.sh"
+        bash "${path_to_graderTools}general/rename.sh"
 
         #for every student's zip file
         shopt -s nullglob
@@ -56,7 +59,6 @@ then
 
             # Create a cleanly-named directory for each student.
             if [ ! -d "$new_name" ]; then
-                # echo "Making student directory: $new_name"
                 mkdir "$new_name"
             fi
 
@@ -97,12 +99,14 @@ then
                 echo "FAILED TO UNZIP $zip_name"
             fi
         done
+        # run script to compile (and test) the submissions.
+        bash "${path_to_graderTools}CS2/compile.sh" "${@:3}"
         cd ..
         echo "******BACKING UP******"
     else
         echo "FAILED TO UNZIP $1"
     fi
 else
-    echo "Usage: organize <zipFileName> <newFolderName> <requiredFile1>... <requiredFile[n]>"
+    echo "Usage: process <zipFileName> <newFolderName> {required_files ...}"
 fi
 

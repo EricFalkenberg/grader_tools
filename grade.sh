@@ -9,12 +9,10 @@
 ## <HOW TO USE>
 ## 
 ## 1) Run script with
-##    "/path/to/grade.sh zipFileName newFolderName {required_files ..}"
+##    "/path/to/grade.sh zipFileName destinationFolderName {required_files ..}"
 ##    (NOTE: if this doesn't run, you will have to
-##     run chmod u+x organize.sh to make it executable.)
+##     run chmod u+x grade.sh to make it executable.)
 ## 
-## TODO:  Alter test.sh and compile.sh so that only submissions that compile
-##          are tested.
 ## 
 
 
@@ -22,8 +20,5 @@
 # Main program.
 path_to_graderTools="${0//grade.sh/}"
 
-# run script to organize student submissions
-bash "${path_to_graderTools}organize.sh" "${@}"
-
-# run script to compile (and test) all student submissions
-bash "${path_to_graderTools}CS2/compile.sh" "${@}"
+# run script to process student submissions
+bash "${path_to_graderTools}process.sh" "${@}"

@@ -23,7 +23,7 @@
 ## 2) Run script from each student directory **after successful compilation** with
 ##    "/path/to/test.sh"
 ##    (NOTE: if this doesn't run, you will have to
-##     run chmod u+x organize.sh to make it executable.)
+##     run chmod u+x test.sh to make it executable.)
 ##
 ## 
 
@@ -43,7 +43,7 @@ for prog in *; do
         echo "$toPrint"
         echo "$toPrint" >> feedback.txt
         java "${prog//.java/}" > "${student}_out.txt" 2>&1
-        diff -w -c "student_out.txt" "../tests/${prog//.java/-out.txt}" >> feedback.txt
+        diff -w -c "${student}_out.txt" "../tests/${prog//.java/-out.txt}" >> feedback.txt
         echo $'\n\n' >> feedback.txt
         rm "${student}_out.txt"
     fi
