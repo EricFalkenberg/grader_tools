@@ -18,34 +18,51 @@
 ##              {...}
 ##              student_n/
 ##                      student_files
-##              provided_files
-##              test_files
+##              provided_files/
+##                      provided_files
+##                      test_files
+##              tests/
+##                      correct_test_output_files
+##              grading_guide.txt
+##      
+##      All test programs should be of the form "Test#.java".
+##      The corresponding expected output files should be 
+##          of the form "Test#-out.txt" where # is the same for the test program.
 ## 
 ## 2) Run script from same folder as student directories with
-##    "/path/to/compile.sh"
+##    "/path/to/compile.sh {required_files ...}"
 ##    (NOTE: if this doesn't run, you will have to
-##     run chmod u+x organize.sh to make it executable.)
+##     run chmod u+x compile.sh to make it executable.)
 ##
 ## 
 ## NOTE: Make sure you do not have any other folders at this directory level,
 ##          as the script will attempt to process them as student directories.
 ##          This would probably end badly.
 ##
-## TODO:  Implement reading of files names for three categories either from
-##          command line or from a .txt file.
+## TODO:  Figure out best way to handle the inclusion of a grading_guide
+##          in students' feedback files.
 ## 
 
 # Main program.
 
-provided_files=( "BrowserUtil.java" "Diagnostics.java" "TextStyle.java" "BadChildException.java" )
-test_files=( "Test1.java" "Test2.java" "Test3.java" "Test4.java" "Test5.java" "Test6.java" "TestObject.java" "TestParser.java" )
-student_files=( "HeaderObject.java" "ListObject.java" "ParagraphObject.java" "RootObject.java" "Sequence.java" "StyleObject.java" "TextObject.java" )
+# provided_files=( "BrowserUtil.java" "Diagnostics.java" "TextStyle.java" "BadChildException.java" )
+cd provided_files
+echo "PROVIDED FILES:"
+provided_files=""
+for file in *; do
+    provided_files="${provided_files} $file"
+done
+provided_files=( $provided_files )
+cd ..
+
+# student_files=( "HeaderObject.java" "ListObject.java" "ParagraphObject.java" "RootObject.java" "Sequence.java" "StyleObject.java" "TextObject.java" )
+student_files="${@}"
 
 shopt -s nullglob
 for file in *; do
 # for file in "Lipp_Aaron"; do
     if [ -d "$file" ]; then
-        if [ "$file" != "tests" ]; then
+        if [[ "$file" != "tests" && "$file" != "provided_files" ]]; then
             cd "$file"
             # process provided programs, test programs, and student-written programs
             
@@ -57,21 +74,25 @@ for file in *; do
             # create file that will collect all error messages/test diffs for each student.
             # append the grading skeleton for this assignment to the beginning of the file.
             touch "feedback.txt"
-            cat ../grading_template.txt >> feedback.txt
+            cat ../grading_guide.txt >> feedback.txt
 
-            for prov in "${provided_files[@]}"; do
-                if [ -f "$prov" ]; then
-                    # echo "...removing $file's $prov..."
-                    rm "$prov"
+            # Replaces any provided files (including Test programs) that
+            # the student included in the submission with the equivalent provided
+            # (solution) programs.  
+            shopt -s nullglob
+            for given in "${provided_files[@]}"; do
+                if [ -f "$given" ]; then
+                    # echo "...removing $file's $given..."
+                    rm "$given"
                 fi
-                if [ ! -f "$prov" ]; then
-                    # echo "...copying $prov to $file's directory..."
-                    cp "../${prov}" .
+                if [ ! -f "$given" ]; then
+                    # echo "...copying $given to $file's directory..."
+                    cp "../provided_files/${given}" .
                 fi
             done
 
             missing_files="False"
-            for prog in "${student_files[@]}"; do
+            for prog in $student_files; do
                 if [ ! -f "$prog" ]; then
                     echo "***Student $file is missing file $prog!!***"
                     echo "MISSING REQUIRED FILE $prog" >> feedback.txt
@@ -79,29 +100,35 @@ for file in *; do
                 fi
             done
 
-            for test in "${test_files[@]}"; do
-                if [ -f "$test" ]; then
-                    # echo "...removing $file's $test..."
-                    rm "$test"
-                fi
-                if [ ! -f "$test" ]; then
-                    # echo "...copying $test to $file's directory..."
-                    cp "../${test}" .
-                fi
-            done
-
-            # if student submitted all of the required files, compile the code.
+            # if student submitted all of the required files, compile and test the code.
             if [ "$missing_files" == "False" ]; then
                 echo "compiling $file's code......................"
-                javac "${provided_files[@]}" "${student_files[@]}" "${test_files[@]}" >> feedback.txt 2>&1
+                javac *.java >> feedback.txt 2>&1
                 echo ".................................................. DONE! "
+                bash ../"${0//compile/test}"
             else
                 compile_error="ERROR:  CANNOT COMPILE $file's CODE. SRC FILES MISSING"
                 echo "$compile_error"
                 echo "$compile_error" >> feedback.txt
                 echo "" >> feedback.txt
+                echo "NO TESTS PERFORMED." >> feedback.txt
+                echo "" >> feedback.txt
             fi
 
+            # Remove provided files again, now that compilation and testing are finished.
+            # Also remove any .class files that were created during compilation and used for testing.
+            shopt -s nullglob
+            for given in "${provided_files[@]}"; do
+                if [ -f "$given" ]; then
+                    # echo "...removing $file's $given..."
+                    rm "$given"
+                fi
+            done
+            shopt -s nullglob
+            for class in *.class; do
+                rm "$class"
+            done
+            
             cd ..
         fi
             
