@@ -3,7 +3,7 @@
 ## This script will go through all student directories, process
 ## and organize provided, test, and student-written files,
 ## and compile them if possible.  Puts all issues/error messages
-## into each student's directiory in the file "feedback.txt".
+## into each student's directiory in a "feedback" file.
 ##
 ## AUTHOR: Kaitlin Hipkin <kah5368@rit.edu>
 ##
@@ -37,15 +37,11 @@
 ## 
 ## NOTE: Make sure you do not have any other folders at this directory level,
 ##          as the script will attempt to process them as student directories.
-##          This would probably end badly.
-##
-## TODO:  Figure out best way to handle the inclusion of a grading_guide
-##          in students' feedback files.
+##          This would potentially end badly.
 ## 
 
 # Main program.
 
-# provided_files=( "BrowserUtil.java" "Diagnostics.java" "TextStyle.java" "BadChildException.java" )
 cd provided_files
 echo "PROVIDED FILES:"
 provided_files=""
@@ -55,7 +51,6 @@ done
 provided_files=( $provided_files )
 cd ..
 
-# student_files=( "HeaderObject.java" "ListObject.java" "ParagraphObject.java" "RootObject.java" "Sequence.java" "StyleObject.java" "TextObject.java" )
 student_files="${@}"
 
 shopt -s nullglob
@@ -65,16 +60,16 @@ for file in *; do
         if [[ "$file" != "tests" && "$file" != "provided_files" ]]; then
             cd "$file"
             # process provided programs, test programs, and student-written programs
-            
-            if [ -f "feedback.txt" ]; then
-                # echo "...removing $file's feedback.txt..."
-                rm "feedback.txt"
+            feedback_file="${file}_feedback.txt"
+            if [ -f "$feedback_file" ]; then
+                # echo "...removing $feedback_file..."
+                rm "$feedback_file"
             fi
 
             # create file that will collect all error messages/test diffs for each student.
             # append the grading skeleton for this assignment to the beginning of the file.
-            touch "feedback.txt"
-            cat ../grading_guide.txt >> feedback.txt
+            touch "$feedback_file"
+            cat ../grading_guide.txt >> "$feedback_file"
 
             # Replaces any provided files (including Test programs) that
             # the student included in the submission with the equivalent provided
@@ -95,7 +90,7 @@ for file in *; do
             for prog in $student_files; do
                 if [ ! -f "$prog" ]; then
                     echo "***Student $file is missing file $prog!!***"
-                    echo "MISSING REQUIRED FILE $prog" >> feedback.txt
+                    echo "MISSING REQUIRED FILE $prog" >> "$feedback_file"
                     missing_files="True"
                 fi
             done
@@ -103,16 +98,16 @@ for file in *; do
             # if student submitted all of the required files, compile and test the code.
             if [ "$missing_files" == "False" ]; then
                 echo "compiling $file's code......................"
-                javac *.java >> feedback.txt 2>&1
+                javac *.java >> "$feedback_file" 2>&1
                 echo ".................................................. DONE! "
-                bash ../"${0//compile/test}"
+                bash ../"${0//compile/test}" "$feedback_file"
             else
                 compile_error="ERROR:  CANNOT COMPILE $file's CODE. SRC FILES MISSING"
                 echo "$compile_error"
-                echo "$compile_error" >> feedback.txt
-                echo "" >> feedback.txt
-                echo "NO TESTS PERFORMED." >> feedback.txt
-                echo "" >> feedback.txt
+                echo "$compile_error" >> "$feedback_file"
+                echo "" >> "$feedback_file"
+                echo "NO TESTS PERFORMED." >> "$feedback_file"
+                echo "" >> "$feedback_file"
             fi
 
             # Remove provided files again, now that compilation and testing are finished.
@@ -128,7 +123,7 @@ for file in *; do
             for class in *.class; do
                 rm "$class"
             done
-            
+
             cd ..
         fi
             
