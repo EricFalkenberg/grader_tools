@@ -5,6 +5,7 @@
 ## 
 ## Desired resulting folder heirarchy:
 ##		./
+##				feedback/
 ##				provided_files/
 ##					provided_files
 ##					test_files
@@ -32,5 +33,6 @@ mkdir "$1"
 cd "$1"
 mkdir "provided_files"
 mkdir "tests"
+mkdir "feedback"
 touch "grading_guide.txt"
 cd ..
