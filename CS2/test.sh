@@ -45,7 +45,15 @@ for prog in *; do
         echo "$toPrint"
         echo "$toPrint" >> "$1"
         java "${prog//.java/}" > "${student}_out.txt" 2>&1
-        diff -w -c "${student}_out.txt" "../tests/${prog//.java/-out.txt}" >> "$1"
+        expected_out="../tests/${prog//.java/-out.txt}"
+        # if file containing expected test output is provided,
+        # append diff to feedback file
+        if [ -f "$expected_out" ]; then
+        	diff -w -c "${student}_out.txt" "$expected_out" >> "$1"
+        # otherwise, append all output to feedback file
+        else
+        	cat "${student}_out.txt" >> "$1"
+        fi
         echo $'\n\n' >> "$1"
         rm "${student}_out.txt"
     fi
