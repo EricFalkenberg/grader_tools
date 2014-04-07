@@ -18,6 +18,11 @@
 ##              {...}
 ##              student_n/
 ##                      student_files
+##              feedback/
+##                      student_one_feedback
+##                      student_two_feedback
+##                      {...}
+##                      student_n_feedback
 ##              provided_files/
 ##                      provided_files
 ##                      test_files
@@ -60,7 +65,7 @@ for file in *; do
         if [[ "$file" != "tests" && "$file" != "provided_files" ]]; then
             cd "$file"
             # process provided programs, test programs, and student-written programs
-            feedback_file="${file}_feedback.txt"
+            feedback_file="../feedback/${file}_feedback.txt"
             if [ -f "$feedback_file" ]; then
                 # echo "...removing $feedback_file..."
                 rm "$feedback_file"

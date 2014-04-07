@@ -9,7 +9,9 @@
 ## <HOW TO USE>
 ## 
 ## 1) This script expects the following file directory layout:
-##      student_n/
+## 		feedback/
+##         		current_student_feedback
+##      CURRENT_STUDENT_DIRECTORY/
 ##              student_files
 ##              provided_files
 ##              test_files
