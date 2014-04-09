@@ -48,10 +48,9 @@
 # Main program.
 
 cd provided_files
-echo "PROVIDED FILES:"
 provided_files=""
-for file in *; do
-    provided_files="${provided_files} $file"
+for prov in *; do
+    provided_files="${provided_files} $prov"
 done
 provided_files=( $provided_files )
 cd ..
@@ -62,7 +61,7 @@ shopt -s nullglob
 for file in *; do
 # for file in "Lipp_Aaron"; do
     if [ -d "$file" ]; then
-        if [[ "$file" != "tests" && "$file" != "provided_files" ]]; then
+        if [[ "$file" != "tests" && "$file" != "provided_files" && "$file" != "feedback" ]]; then
             cd "$file"
             # process provided programs, test programs, and student-written programs
             feedback_file="../feedback/${file}_feedback.txt"

@@ -41,13 +41,22 @@ echo "TESTING STUDENT $student's SUBMISSION"
 # for each program in student directory, if it is a test program, run it.
 for prog in *; do
     if [[ "$prog" =~ Test[0-9]*.java ]]; then
-        toPrint="============found test file $prog============"
+        toPrint="============ test file $prog ============"
         echo "$toPrint"
         echo "$toPrint" >> "$1"
-        java "${prog//.java/}" > "${student}_out.txt" 2>&1
-        diff -w -c "${student}_out.txt" "../tests/${prog//.java/-out.txt}" >> "$1"
+        outfile="${student}_out.txt"
+        java "${prog//.java/}" > "$outfile" 2>&1
+        expected_out="../tests/${prog//.java/-out.txt}"
+        # if file containing expected test output is provided,
+        # append diff to feedback file
+        if [ -f "$expected_out" ]; then
+        	diff -w -c "$outfile" "$expected_out" >> "$1"
+        # otherwise, append all output to feedback file
+        else
+        	cat "$outfile" >> "$1"
+        fi
         echo $'\n\n' >> "$1"
-        rm "${student}_out.txt"
+        rm "$outfile"
     fi
 done
     
