@@ -41,7 +41,7 @@ echo "TESTING STUDENT $student's SUBMISSION"
 # for each program in student directory, if it is a test program, run it.
 for prog in *; do
     if [[ "$prog" =~ Test[0-9]*.java ]]; then
-        toPrint="============found test file $prog============"
+        toPrint="============ test file $prog ============"
         echo "$toPrint"
         echo "$toPrint" >> "$1"
         outfile="${student}_out.txt"

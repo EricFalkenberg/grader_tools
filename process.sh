@@ -42,12 +42,22 @@ then
     if unzip "$1" -d "$2"; then
 
         cd "$2"
-        echo "******MOVING INTO $2******"
+        # echo "******MOVING INTO $2******"
 
         # delete the incredibly annoying index.html file that MyCourses gives you.
         if [ -f "index.html" ]; then
             rm "index.html"
         fi
+
+        # if any student submissions consist of a single src file, create a directory for
+        # each respective student, move the src file into the new directory, and assume
+        # the file is the first required file (ie: assume there is only one required file).
+        for src_file in *.java; do
+            dir_name="${src_file//.java/}"
+            mkdir "$dir_name"
+            mv "$src_file" "$dir_name"
+            mv "$dir_name/$src_file" "$dir_name/$3"
+        done
 
         path_to_graderTools=../"${0//process.sh/}"
 
@@ -85,20 +95,20 @@ then
 
                 # look through all student files and process them.
                 cd "$new_name"
-                echo "******MOVING INTO $new_name******"
+                # echo "******MOVING INTO $new_name******"
 
                 shopt -s nullglob
                 # if the student has a weird directory, attempt to process it as an
                 # eclipse directory. 
                 for student_file in *; do
                     if [ -d "$student_file" ]; then
-                        echo "** Student $new_name has bad directory $student_file..."
+                        # echo "** Student $new_name has bad directory $student_file..."
                         echo "TRYING TO EXTRACT FILES FROM ECLIPSE DIRECTORY...."
                         bash ../"${path_to_graderTools}CS2/processEclipseDir.sh" "$student_file"
                     fi
                 done
                 cd ..
-                echo "******BACKING UP******"
+                # echo "******BACKING UP******"
             else
                 echo "FAILED TO UNZIP $zip_name"
             fi
@@ -109,7 +119,7 @@ then
         # run script to compile (and test) the submissions.
         bash "${path_to_graderTools}CS2/compile.sh" "${@:3}"
         cd ..
-        echo "******BACKING UP******"
+        # echo "******BACKING UP******"
     else
         echo "FAILED TO UNZIP $1"
     fi
