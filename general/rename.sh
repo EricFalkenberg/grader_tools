@@ -25,7 +25,7 @@ for old_name in $ALL_FILES; do
 		new_name=${new_name//[Ss][Uu][Bb][Mm][Ii][Ss][Ss][Ii][Oo][Nn]/}
 
 
-		new_name=${new_name//[Ss][Oo][Ll][Uu][Tt][Ii][Oo][Nn][Cc][Hh][Ee][Cc][Kk][Ee][Rr]/}
+		# new_name=${new_name//[Ss][Oo][Ll][Uu][Tt][Ii][Oo][Nn][Cc][Hh][Ee][Cc][Kk][Ee][Rr]/}
 
 		# Remove the student's username, if present.
 		new_name=${new_name//[a-zA-Z][a-zA-Z][a-zA-Z][0-9][0-9][0-9][0-9]/}
