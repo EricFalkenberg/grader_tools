@@ -40,31 +40,35 @@ echo "TESTING STUDENT $student's SUBMISSION"
 
 # for each program in student directory, if it is a test program, run it.
 for prog in *; do
-    if [[ "$prog" =~ Test[0-9a-zA-Z]* ]]; then
+    if [[ "$prog" =~ [Tt]est[0-9a-zA-Z]* ]]; then
 
         toPrint="============ test file $prog ============"
         echo "$toPrint"
         echo "$toPrint" >> "$1"
         outfile="${student}_out.txt"
 
+        touch "${outfile}"
+
         # if it is a .java test file
         if [ "${prog: -5}" == ".java" ]; then
             java "${prog//.java/}" > "$outfile" 2>&1
+            expected_out="../tests/${prog//.java/-out.txt}"
         # if it is a shell script
-        else if  [ "${f: -3}" == ".sh" ];then
-            bash ./"${prog}" > "$outfile" 2>&1
+        elif  [ "${prog: -3}" == ".sh" ];then
+            bash "${prog}" > "$outfile" 2>&1
+            expected_out="../tests/${prog//.sh/-out.txt}"
         # if it is a python test
-        else if  [ "${f: -3}" == ".py" ];then
+        elif  [ "${prog: -3}" == ".py" ];then
             python ./"${prog}" > "$outfile" 2>&1
+            expected_out="../tests/${prog//.py/-out.txt}"
         fi
 
-        expected_out="../tests/${prog//.java/-out.txt}"
         alternate_out="${expected_out//-out/Output}"
         # if file containing expected test output is provided,
         # append diff to feedback file.
         if [ -f "$expected_out" ]; then
             diff -w -c "$outfile" "$expected_out" >> "$1"
-        else if [ -f "$alternate_out" ]; then
+        elif [ -f "$alternate_out" ]; then
             diff -w -c "$outfile" "$alternate_out" >> "$1"
         # if no expected output provided, append all output to feedback file.
         else
