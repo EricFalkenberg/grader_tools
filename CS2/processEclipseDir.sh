@@ -66,7 +66,7 @@ else
     			cd ..
 	        fi
 	        cd ..
-	    elsec 
+	    else
 	    	foundSrc="True"
 	    	mv "$thing" ../
 	    fi
