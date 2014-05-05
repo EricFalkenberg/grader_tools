@@ -52,6 +52,7 @@ then
         # if any student submissions consist of a single src file, create a directory for
         # each respective student, move the src file into the new directory, and assume
         # the file is the first required file (ie: assume there is only one required file).
+        shopt -s nullglob
         for src_file in *.java; do
             dir_name="${src_file//.java/}"
             mkdir "$dir_name"
