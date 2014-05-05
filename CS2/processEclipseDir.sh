@@ -26,18 +26,15 @@ cd "$1"
 # if suspected directory is actually the project folder, move into
 # the src folder to fetch files.
 if [ -d "src" ]; then
-	echo "***MOVING INTO SRC FOLDER***"
 	cd "src"
 	shopt -s nullglob
     for file in *; do
     	if [ -f "$file" ]; then
 	    	mv "$file" ../../
-	    	echo "Moving file $file up two levels to main folder...."
 	    else
 	    	# if student included version control folder, ignore it.
 	    	if [ "$file" != "CVS" ]; then
 		    	mv "$file" ../../
-		    	echo "Moving folder $file up two levels to main folder...."
 		    fi
 	    fi
     done
@@ -47,49 +44,40 @@ if [ -d "src" ]; then
 else
 	shopt -s nullglob
     for thing in *; do
+    	# if it is a directory, move into it and continue looking for "src".
     	if [ -d "$thing" ]; then
-    		echo "Looking in folder $thing...."
 			cd "$thing"
 			# if src folder successfully located, move into src folder and
 			# move all source files up to student's main folder.
 			if [ -d "src" ]; then
-				echo "***MOVING INTO SRC FOLDER***"
 				cd "src"
 				shopt -s nullglob
 				for file in *; do
 					if [ -f "$file" ]; then
 						mv "$file" ../../../
-						echo "Moving file $file up three levels to main folder...."
 					else
+	    				# if student included version control folder, ignore it.
 				    	if [ "$file" != "CVS" ]; then
 				    		mv "$file" ../../../
-							echo "Moving folder $file up three levels to main folder...."
 						fi
 				    fi
 		        done
-				echo "***BACKING UP***"
 	        	foundSrc="True"
     			cd ..
-	        else
-	        	echo "No src folder found in $thing!"
 	        fi
-	        echo "***BACKING UP***"
 	        cd ..
 	    else
-	    	echo "Found file $thing instead of src folder. Processing as src file......"
 	    	foundSrc="True"
 	    	mv "$thing" ../
-	    	echo "Moving file $thing up one level to main folder...."
 	    fi
     done
 fi
 
 
-echo "***BACKING UP***"
 cd ..
 
+# if source files successfully extracted, remove subdirectory and mark submission.
 if [ "$foundSrc" == "True" ]; then
-	echo "Source files successfully extracted. Removing directory $1..."
 	rm -r "$1"
 	touch BAD_SUB.txt
 fi
