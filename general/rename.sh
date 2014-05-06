@@ -17,12 +17,14 @@ ALL_FILES="*"
 for old_name in $ALL_FILES; do
 	if [[ "$old_name" != "grading_guide.txt" && "$old_name" != "feedback" && "$old_name" != "provided_files" && "$old_name" != "tests" ]]; then
 		
-		# chop off "Lab"/"Project"/"Submission" descriptors.
+		# chop off "Lab"/"Proj(ect)"/"Part"/"Submission"/"CS" descriptors.
 		new_name=${old_name//[Ll][Aa][Bb]/}
 		new_name=${new_name//[Pp][Rr][Oo][Jj][Ee][Cc][Tt]/}
 		new_name=${new_name//[Pp][Rr][Oo][Jj]/}
 		new_name=${new_name//[Pp][Aa][Rr][Tt]/}
 		new_name=${new_name//[Ss][Uu][Bb][Mm][Ii][Ss][Ss][Ii][Oo][Nn]/}
+		new_name=${new_name//CS/}
+		new_name=${new_name//cs/}
 
 		# Remove the student's username, if present.
 		new_name=${new_name//[a-zA-Z][a-zA-Z][a-zA-Z][0-9][0-9][0-9][0-9]/}
