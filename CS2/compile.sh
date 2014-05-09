@@ -49,13 +49,12 @@
 
 cd provided_files
 provided_files=""
+shopt -s nullglob
 for prov in *; do
     provided_files="${provided_files} $prov"
 done
 provided_files=( $provided_files )
 cd ..
-
-student_files="${@}"
 
 shopt -s nullglob
 for file in *; do
@@ -63,6 +62,9 @@ for file in *; do
     if [ -d "$file" ]; then
         if [[ "$file" != "tests" && "$file" != "provided_files" && "$file" != "feedback" ]]; then
             cd "$file"
+
+            student_files=${@}
+
             # process provided programs, test programs, and student-written programs
             feedback_file="../feedback/${file}_feedback.txt"
             if [ -f "$feedback_file" ]; then
@@ -86,11 +88,15 @@ for file in *; do
                 fi
                 if [ ! -f "$given" ]; then
                     # echo "...copying $given to $file's directory..."
-                    cp "../provided_files/${given}" .
+                    given_src="../provided_files/${given}"
+                    if [ -f "$given_src" ]; then
+                        cp "$given_src" .
+                    fi
                 fi
             done
 
             missing_files="False"
+            shopt -s nullglob
             for prog in $student_files; do
                 if [ ! -f "$prog" ]; then
                     echo "***Student $file is missing file $prog!!***"
