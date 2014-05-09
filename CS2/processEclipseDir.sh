@@ -33,7 +33,7 @@ if [ -d "src" ]; then
 	    	mv "$file" ../../
 	    else
 	    	# if student included version control folder, ignore it.
-	    	if [ "$file" != "CVS" ]; then
+	    	if [ "$file" != "CVS" ] && [ "$file" != "_MACOSX" ]; then
 		    	mv "$file" ../../
 		    fi
 	    fi
@@ -57,7 +57,7 @@ else
 						mv "$file" ../../../
 					else
 	    				# if student included version control folder, ignore it.
-				    	if [ "$file" != "CVS" ]; then
+				    	if [ "$file" != "CVS" ] && [ "$file" != "_MACOSX" ]; then
 				    		mv "$file" ../../../
 						fi
 				    fi
