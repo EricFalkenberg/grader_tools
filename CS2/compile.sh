@@ -113,8 +113,7 @@ for file in *; do
                 bash ../"${0//compile/test}" "$feedback_file"
             else
                 compile_error="ERROR:  CANNOT COMPILE $file's CODE. SRC FILES MISSING"
-                echo "$compile_error"
-                echo "$compile_error" >> "$feedback_file"
+                echo "$compile_error" | tee -a "$feedback_file"
                 echo "" >> "$feedback_file"
                 echo "NO TESTS PERFORMED." >> "$feedback_file"
                 echo "" >> "$feedback_file"
