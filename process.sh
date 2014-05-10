@@ -79,7 +79,7 @@ then
 
             # unzip each student's submission.zip into the new directory.
             temp="${new_name}_temp"
-            if unzip "$zip_name" -d "$temp" > "temp.txt" 2>&1; then
+            if unzip "$zip_name" -d "$temp" > /dev/null 2>&1; then
                 # unzip into new directory and move to correct directory level,
                 # then delete old zip archive.
 
@@ -112,9 +112,6 @@ then
                 # echo "******BACKING UP******"
             else
                 echo "FAILED TO UNZIP $zip_name"
-            fi
-            if [ -f "temp.txt" ]; then
-                rm "temp.txt"
             fi
         done
         # run script to compile (and test) the submissions.
