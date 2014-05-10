@@ -107,10 +107,13 @@ for file in *; do
 
             # if student submitted all of the required files, compile and test the code.
             if [ "$missing_files" == "False" ]; then
-                echo "compiling $file's code......................"
-                javac *.java >> "$feedback_file" 2>&1
-                echo ".................................................. DONE! "
-                bash ../"${0//compile/test}" "$feedback_file"
+                find *.java 2>/dev/null 1>dev/null
+                if $?; then
+                    echo "compiling $file's code......................"
+                    javac *.java >> "$feedback_file" 2>&1
+                    echo ".................................................. DONE! "
+                    bash ../"${0//compile/test}" "$feedback_file"
+                fi
             else
                 compile_error="ERROR:  CANNOT COMPILE $file's CODE. SRC FILES MISSING"
                 echo "$compile_error" | tee -a "$feedback_file"
